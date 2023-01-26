@@ -1,0 +1,35 @@
+Can write a python code to change multiple file names with a specific predefined wildcard,
+
+For example:
+"PM_IG27_5_202301010000_01.csv" into "NewPMDataQueryResult_5_202301010000.csv"
+
+Requirements:
+-Changed the word "PM_IG27" into "NewPMDataQueryResult".
+
+.............................................................................................................
+
+Can write the code to change the last "_01" as well,
+
+For example,
+"NewPMDataQueryResult_5_202301010000_01.csv" into "NewPMDataQueryResult_5_202301010000.csv"
+
+.............................................................................................................
+
+Can write it to get from currect path instead of need to define the path where the files are located?
+
+.............................................................................................................
+
+How to convert this code into an '.exe' executable file?
+
+.............................................................................................................
+
+What is other way to convert it?
+
+.............................................................................................................
+
+How to convert it to single '.exe' exutable program only?
+
+.............................................................................................................
+
+How to use auto-py-to-exe to convert the code into a single executable '.exe' program?
+
