@@ -1,0 +1,14 @@
+Command: Can make the coding to ask user first how many replacement they want to do, then what keyword and to be replaced with like that?
+
+Command: Can make it read from document Data.docx, then it will generate a new document New_Data.docx with the replaced words?
+
+
+Command: Can you changed the code to make it read keyword and to be replaced from Changelist.txt file?
+
+Inside the Changelist.txt file:
+
+[
+("2022",                                 "2023"),
+("keyword2",                             "replacement2"),
+("keyword3",                             "replacement3")
+]
