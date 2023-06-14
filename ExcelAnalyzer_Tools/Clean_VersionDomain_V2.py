@@ -7,7 +7,7 @@ df = pd.read_excel('raw_data.xlsx', skiprows=3)
 df['Software Version'] = df['Software Version'].str.replace(r'\(.*\)', '', regex=True)
 
 # extract the required string using regular expression
-df['Software Version'] = df['Software Version'].str.extract(r'(V\d+R\d+C\d+SPC\d+)')
+df['Software Version'] = df['Software Version'].str.extract(r'(V\d+R\d+C\d+(?:SPC\d+)?)')
 
 # Replace 'ROOT/' and everything after '/' in column 'E' with an empty string
 df['Subnet Path'] = df['Subnet Path'].str.replace('ROOT/', '').str.split('/').str[0]
