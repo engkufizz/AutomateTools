@@ -1,0 +1,15 @@
+Fixed Expenses,Rent,0
+Fixed Expenses,Insurance_SUAMI,150
+Fixed Expenses,Insurance_ISTERI,171
+Fixed Expenses,Insurance_ANAK,183
+Variable Expenses,Groceries,500
+Variable Expenses,Mobile Prepaid,50
+Variable Expenses,Transportation,150
+Variable Expenses,Belanja ibu bapa_SUAMI,0
+Variable Expenses,Buai automatic,300
+Variable Expenses,Yuran ukm sharifah,1500
+Savings and Debt Repayment,Tabung untuk recovery_SUAMI,700
+Savings and Debt Repayment,Tabung untuk recovery_ISTERI,500
+Savings and Debt Repayment,Car loan repayment,571
+Savings and Debt Repayment,Retirement savings_SUAMI,500
+Savings and Debt Repayment,Retirement savings_ISTERI,500
