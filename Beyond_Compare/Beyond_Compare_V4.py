@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import difflib
 import tkinter as tk
@@ -48,18 +49,18 @@ class FileComparisonTool:
         self.text_area2.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
         load_button1.grid(row=2, column=0, padx=5, pady=5)
         load_button2.grid(row=2, column=1, padx=5, pady=5)
-        compare_button.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+        compare_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
 
         # Configure grid weights
         master.grid_columnconfigure(0, weight=1)
         master.grid_columnconfigure(1, weight=1)
         master.grid_rowconfigure(1, weight=1)
 
-        # Initialize search variables
+        # Initialize search and diff variables
         self.last_search_index1 = '1.0'
         self.last_search_index2 = '1.0'
-        self.diff_positions1 = []
-        self.diff_positions2 = []
+        self.diff_positions1 = []  # list of positions (in text_area1) where differences occur
+        self.diff_positions2 = []  # list of positions (in text_area2) where differences occur
         self.current_diff_index1 = 0
         self.current_diff_index2 = 0
 
@@ -75,16 +76,19 @@ class FileComparisonTool:
 
     def find_next(self, text_area, search_text, last_index):
         text_area.tag_remove('search', '1.0', tk.END)
+        
         if search_text:
             pos = text_area.search(search_text, last_index, nocase=1, stopindex=tk.END)
             if not pos:
                 pos = text_area.search(search_text, '1.0', nocase=1, stopindex=tk.END)
                 if not pos:
                     return '1.0'
+            
             end_pos = f"{pos}+{len(search_text)}c"
             text_area.tag_add('search', pos, end_pos)
             text_area.tag_config('search', background='yellow')
             text_area.see(pos)
+            
             return end_pos
         return '1.0'
 
@@ -115,49 +119,98 @@ class FileComparisonTool:
                     self.text_area2.insert(tk.END, content)
 
     def compare_files(self):
-        text1 = self.text_area1.get('1.0', tk.END).splitlines()
-        text2 = self.text_area2.get('1.0', tk.END).splitlines()
+        # Get file contents as lists of lines
+        lines1 = self.text_area1.get('1.0', tk.END).splitlines()
+        lines2 = self.text_area2.get('1.0', tk.END).splitlines()
 
+        # Clear both text areas and reset difference positions
         self.text_area1.delete('1.0', tk.END)
         self.text_area2.delete('1.0', tk.END)
-        
         self.diff_positions1 = []
         self.diff_positions2 = []
         self.current_diff_index1 = 0
         self.current_diff_index2 = 0
 
-        for line1, line2 in zip(text1, text2):
-            if line1 == line2:
-                self.text_area1.insert(tk.END, line1 + '\n')
-                self.text_area2.insert(tk.END, line2 + '\n')
+        # Compare the two files by lines
+        sm = difflib.SequenceMatcher(None, lines1, lines2)
+        for tag, i1, i2, j1, j2 in sm.get_opcodes():
+            if tag == "equal":
+                # Lines are the same in both files: add without highlighting
+                for line in lines1[i1:i2]:
+                    self.text_area1.insert(tk.END, line + "\n")
+                    self.text_area2.insert(tk.END, line + "\n")
+            elif tag == "replace":
+                # If a block has been replaced, compare line‐by‐line.
+                # We pair as many lines as possible.
+                n = max(i2 - i1, j2 - j1)
+                for k in range(n):
+                    old_line = lines1[i1 + k] if i1 + k < i2 else ""
+                    new_line = lines2[j1 + k] if j1 + k < j2 else ""
+                    self.diff_line_pair(old_line, new_line)
+            elif tag == "delete":
+                # Lines removed from file1
+                for line in lines1[i1:i2]:
+                    pos = self.text_area1.index(tk.END)
+                    self.diff_positions1.append(pos)
+                    self.text_area1.insert(tk.END, line, "removed")
+                    self.text_area1.insert(tk.END, "\n")
+                    self.text_area2.insert(tk.END, "\n")
+            elif tag == "insert":
+                # Lines inserted into file2 (file1 will have a blank line)
+                for line in lines2[j1:j2]:
+                    pos = self.text_area2.index(tk.END)
+                    self.diff_positions2.append(pos)
+                    self.text_area1.insert(tk.END, "\n")
+                    self.text_area2.insert(tk.END, line, "added")
+                    self.text_area2.insert(tk.END, "\n")
+
+        # Configure the tag styles for whole-line differences (if any)
+        self.text_area1.tag_configure("removed", background="#ffcccc")
+        self.text_area2.tag_configure("added", background="#ccffcc")
+
+    def diff_line_pair(self, old_line, new_line):
+        """
+        Compare two lines by matching parts within them and insert the results into the two text areas.
+        Portions that do not match are tagged so they’re highlighted.
+        """
+        ta1 = self.text_area1
+        ta2 = self.text_area2
+
+        # Remember the starting indexes for this line.
+        line_start1 = ta1.index(tk.END)
+        line_start2 = ta2.index(tk.END)
+        diff_found = False
+
+        matcher = difflib.SequenceMatcher(None, old_line, new_line)
+        for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+            if tag == "equal":
+                segment = old_line[i1:i2]
+                ta1.insert(tk.END, segment)
+                ta2.insert(tk.END, segment)
             else:
-                # Compare characters within the line
-                matcher = difflib.SequenceMatcher(None, line1, line2)
-                pos1 = self.text_area1.index('end-1c')
-                pos2 = self.text_area2.index('end-1c')
+                # record this diff position once per line
+                if not diff_found:
+                    pos1 = ta1.index(tk.END)
+                    pos2 = ta2.index(tk.END)
+                    self.diff_positions1.append(pos1)
+                    self.diff_positions2.append(pos2)
+                    diff_found = True
+                # Highlight differences:
+                if tag in ("replace", "delete"):
+                    # In file1 (the "old" version), highlight the differing segment.
+                    segment_old = old_line[i1:i2]
+                    ta1.insert(tk.END, segment_old, "removed")
+                if tag in ("replace", "insert"):
+                    # In file2 (the "new" version), highlight the differing segment.
+                    segment_new = new_line[j1:j2]
+                    ta2.insert(tk.END, segment_new, "added")
+        ta1.insert(tk.END, "\n")
+        ta2.insert(tk.END, "\n")
+        # Make sure tags for intraline differences are visible too.
+        ta1.tag_configure("removed", background="#ffcccc")
+        ta2.tag_configure("added", background="#ccffcc")
 
-                for tag, i1, i2, j1, j2 in matcher.get_opcodes():
-                    if tag == 'equal':
-                        self.text_area1.insert(tk.END, line1[i1:i2])
-                        self.text_area2.insert(tk.END, line2[j1:j2])
-                    elif tag in ['replace', 'delete', 'insert']:
-                        if i1 < i2:  # There's something to mark in text1
-                            self.text_area1.insert(tk.END, line1[i1:i2], 'removed')
-                            self.diff_positions1.append(f"{pos1}+{i1}c")
-                        if j1 < j2:  # There's something to mark in text2
-                            self.text_area2.insert(tk.END, line2[j1:j2], 'added')
-                            self.diff_positions2.append(f"{pos2}+{j1}c")
-
-                self.text_area1.insert(tk.END, '\n')
-                self.text_area2.insert(tk.END, '\n')
-
-        self.text_area1.tag_configure('removed', background='#ffcccc')
-        self.text_area2.tag_configure('added', background='#ccffcc')
-
-def main():
+if __name__ == '__main__':
     root = tk.Tk()
     app = FileComparisonTool(root)
     root.mainloop()
-
-if __name__ == '__main__':
-    main()
