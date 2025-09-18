@@ -1,146 +1,144 @@
 # Universal Excel Combiner
 
-A Python tool (with both **CLI** and **GUI**) to **combine multiple Excel (`.xlsx`) and CSV files** into a single structured dataset.
-It uses **robust header auto-detection** to handle messy files with inconsistent headers, empty rows, or multi-row titles.
+A Python tool to **combine Excel (`.xlsx`) and CSV files** into a single clean dataset with **automatic header detection**, **schema alignment**, and flexible **output options**.
+
+Supports both **command-line interface (CLI)** and an optional **GUI (Tkinter)**.
 
 ---
 
 ## ✨ Features
 
-* 🔍 **Automatic header detection**
-  Detects the most likely header row using heuristics (header-ish tokens, uniqueness, empties, etc.).
+* 📂 **Supports Excel (`.xlsx`) and CSV** (auto-detects multiple sheets).
+* 🧠 **Smart header detection**:
 
-* 🧩 **Multi-row header merging**
-  Handles cases where headers span 2 rows and merges them intelligently.
+  * Finds the most likely header row.
+  * Handles multi-row headers (merges if needed).
+  * De-duplicates duplicate column names.
+* 🔗 **Schema alignment** across files:
 
-* 📑 **Duplicate header handling**
-  Automatically deduplicates column names (`Name`, `Name__1`, …).
+  * Aligns weak/no-header files to the most common header layout (optional).
+* 🛠 **Options for column name normalisation** (trimming, whitespace collapse).
+* 🏷 **Metadata tracking**:
 
-* 📂 **Multiple file support**
-  Supports both `.xlsx` (all sheets) and `.csv`.
+  * Adds `source_file` and `source_sheet` columns to trace data origin.
+* 📊 **Output formats**:
 
-* 🛠️ **Column normalisation**
-  Optionally trims spaces and unifies formatting.
+  * Excel (`.xlsx`) with either one combined sheet or **separate per-source sheets + All**.
+  * CSV (`.csv`).
+  * Both simultaneously.
+* 🎛 **Two usage modes**:
 
-* 📊 **Canonical schema alignment**
-  Optionally aligns headerless or weakly-detected files to the most common schema.
-
-* 📎 **Metadata tracking**
-  Adds `source_file` and `source_sheet` columns (optional) so you always know where each row came from.
-
-* 💾 **Flexible output**
-
-  * Excel (`.xlsx`) with single sheet or per-source sheets + “All”
-  * CSV (`.csv`)
-  * Or both
-
-* 🖥️ **Dual interface**
-
-  * **CLI** for automation
-  * **Tkinter GUI** for point-and-click usage
+  * **CLI** for scripting and automation.
+  * **GUI** (if `tkinter` is available).
 
 ---
 
-## 📦 Installation
+## 🚀 Setup / Installation
 
-1. Clone or download this repository.
-2. Install dependencies:
+Make sure you have:
 
-   ```bash
-   pip install pandas openpyxl
-   ```
+* Python 3.8 or newer.
+* Required packages:
 
-   > Tkinter is part of the Python standard library (no extra install needed on most systems).
+  * `pandas`
+  * `openpyxl` (for Excel support)
+* (Optional) `tkinter` for the GUI
+
+Then install dependencies, for example with pip:
+
+```bash
+pip install pandas openpyxl
+```
 
 ---
 
-## 🚀 Usage
+## 🖥 Usage
 
-### CLI
+### CLI Mode
 
-Run directly from terminal:
+Run with:
 
 ```bash
 python combiner.py --files data1.xlsx data2.csv --outdir ./output --basename merged
 ```
 
-#### Options:
+#### CLI Options
 
-* `--files` *(required)*: Input files (`.xlsx`, `.csv`).
-* `--outdir`: Output directory (default: `.`).
-* `--basename`: Base name for output files (default: `combined`).
-* `--no-metadata`: Disable `source_file` / `source_sheet` columns.
-* `--no-normalise`: Keep raw column names.
-* `--align-headerless`: Try aligning headerless/weak files to the most common schema.
-* `--format`: `xlsx`, `csv`, or `both` (default: `xlsx`).
-* `--separate-sheets`: For Excel, create one sheet per source sheet plus an "All" sheet.
+| Option                     | Description                                             |
+| -------------------------- | ------------------------------------------------------- |
+| `--files FILES...`         | Input files (`.xlsx`, `.csv`)                           |
+| `--outdir DIR`             | Output directory (default: `.`)                         |
+| `--basename NAME`          | Base name for output files (default: `combined`)        |
+| `--no-metadata`            | Do not add `source_file` / `source_sheet` columns       |
+| `--no-normalise`           | Do not normalise column names                           |
+| `--align-headerless`       | Try aligning weak/no-header files to most common schema |
+| `--format {xlsx,csv,both}` | Output format(s), default: `xlsx`                       |
+| `--separate-sheets`        | For Excel, create per-sheet outputs + All               |
 
-Example:
+#### Example 1 – Simple combine
 
 ```bash
-python combiner.py --files file1.xlsx file2.csv --format both --separate-sheets --basename report
+python combiner.py --files data1.xlsx data2.xlsx
+```
+
+Produces a single `combined_YYYYMMDD_HHMMSS.xlsx`.
+
+#### Example 2 – Separate sheets + CSV output
+
+```bash
+python combiner.py --files data1.xlsx data2.csv --separate-sheets --format both
 ```
 
 ---
 
-### GUI
+### GUI Mode
 
-Simply run:
+Run without arguments:
 
 ```bash
 python combiner.py
 ```
 
-The Tkinter GUI will open with options to:
+If `tkinter` is available, a simple GUI opens that walks you through:
 
-1. Select multiple input files
-2. Choose output directory
-3. Configure options (metadata, normalisation, output format, etc.)
-4. Generate merged Excel/CSV file(s)
+1. Selecting input files (`.xlsx`, `.csv`).
+2. Choosing output directory.
+3. Setting options (normalisation, metadata, output format, etc.).
+4. Running the combine action for output.
 
 ---
 
-## 📝 Example Workflow
+## 📂 Output
 
-Input:
+Generated files are timestamped for uniqueness, e.g.:
 
-* `Sales_Q1.xlsx` (multiple sheets with messy headers)
-* `Sales_Q2.csv`
-
-Run:
-
-```bash
-python combiner.py --files Sales_Q1.xlsx Sales_Q2.csv --format both --separate-sheets
+```
+output/
+  merged_20250918_153245.xlsx
+  merged_20250918_153245.csv
 ```
 
-Output:
+* Excel sheets will contain:
 
-* `combined_20250918_153022.xlsx`
-
-  * `All` sheet = all merged data
-  * Separate sheets for each original source sheet
-* `combined_20250918_153022.csv`
-
-Both with unified, cleaned headers.
+  * `All` → combined dataset.
+  * One sheet per input file/sheet (if `--separate-sheets` enabled).
+* CSV is encoded as UTF-8 with BOM (`utf-8-sig`) for better compatibility.
 
 ---
 
-## 🛠 Development Notes
+## 🔧 Development Notes
 
-* Supported file types: `.xlsx`, `.csv` (extendable via `SUPPORTED_EXTS`).
-* Encodings auto-tried for CSV (`utf-8`, `utf-8-sig`, `utf-16`, `latin-1`).
-* Excel reading requires `openpyxl`.
-* GUI defaults:
+* Header detection uses heuristics:
 
-  * Output = Excel (`.xlsx`)
-  * Basename = `Combined`
-  * Metadata = enabled
-  * Column normalisation = enabled
+  * Prefers rows with more “header-like” tokens (non-numeric, unique).
+  * Can merge two consecutive rows into one header if they both look headerish.
+  * Falls back to placeholder headers if nothing is convincing.
+* Alignment across files can be enabled with `--align-headerless` to map weak/no-header files to the most common schema (by column count).
+* GUI uses `tkinter` and `ttk` for cross-platform basic UI.
 
 ---
 
-## 📜 License
+## 📝 License
 
----
+MIT License — free to use, modify, and distribute.
 
-Do you want me to also add a **"Quick Start with Screenshots" section** showing how the GUI looks (mock screenshots or diagrams), or keep it clean and text-only?
