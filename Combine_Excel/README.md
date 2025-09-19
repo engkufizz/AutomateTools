@@ -10,24 +10,19 @@ Supports both **command-line interface (CLI)** and an optional **GUI (Tkinter)**
 
 * 📂 **Supports Excel (`.xlsx`) and CSV** (auto-detects multiple sheets).
 * 🧠 **Smart header detection**:
-
   * Finds the most likely header row.
   * Handles multi-row headers (merges if needed).
   * De-duplicates duplicate column names.
 * 🔗 **Schema alignment** across files:
-
   * Aligns weak/no-header files to the most common header layout (optional).
 * 🛠 **Options for column name normalisation** (trimming, whitespace collapse).
 * 🏷 **Metadata tracking**:
-
   * Adds `source_file` and `source_sheet` columns to trace data origin.
 * 📊 **Output formats**:
-
   * Excel (`.xlsx`) with either one combined sheet or **separate per-source sheets + All**.
   * CSV (`.csv`).
   * Both simultaneously.
 * 🎛 **Two usage modes**:
-
   * **CLI** for scripting and automation.
   * **GUI** (if `tkinter` is available).
 
@@ -39,12 +34,11 @@ Make sure you have:
 
 * Python 3.8 or newer.
 * Required packages:
-
   * `pandas`
   * `openpyxl` (for Excel support)
 * (Optional) `tkinter` for the GUI
 
-Then install dependencies, for example with pip:
+Install dependencies, for example with pip:
 
 ```bash
 pip install pandas openpyxl
@@ -102,9 +96,12 @@ python combiner.py
 If `tkinter` is available, a simple GUI opens that walks you through:
 
 1. Selecting input files (`.xlsx`, `.csv`).
-2. Choosing output directory.
+2. Choosing output file name and location using "Save As..." (sets both directory and base file name).
 3. Setting options (normalisation, metadata, output format, etc.).
 4. Running the combine action for output.
+
+**Note:**  
+The chosen "Save As..." name is used as the base for all outputs. The tool appends a timestamp and the correct extension (`.xlsx` and/or `.csv`) automatically.
 
 ---
 
@@ -119,9 +116,8 @@ output/
 ```
 
 * Excel sheets will contain:
-
   * `All` → combined dataset.
-  * One sheet per input file/sheet (if `--separate-sheets` enabled).
+  * One sheet per input file/sheet (if "separate sheets" is enabled).
 * CSV is encoded as UTF-8 with BOM (`utf-8-sig`) for better compatibility.
 
 ---
@@ -129,16 +125,15 @@ output/
 ## 🔧 Development Notes
 
 * Header detection uses heuristics:
-
   * Prefers rows with more “header-like” tokens (non-numeric, unique).
   * Can merge two consecutive rows into one header if they both look headerish.
   * Falls back to placeholder headers if nothing is convincing.
 * Alignment across files can be enabled with `--align-headerless` to map weak/no-header files to the most common schema (by column count).
 * GUI uses `tkinter` and `ttk` for cross-platform basic UI.
+* In the GUI, output location and base file name are set in a single "Save As..." step.
 
 ---
 
 ## 📝 License
 
 MIT License — free to use, modify, and distribute.
-
