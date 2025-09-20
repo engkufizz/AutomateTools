@@ -43,7 +43,7 @@ It automatically detects headers, handles multi-row headers, and supports both s
 Run the program:
 
 ```bash
-python your_script.py
+python ExcelFilter_Tool.py
 ```
 
 ### GUI Steps:
