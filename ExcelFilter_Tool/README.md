@@ -1,90 +1,83 @@
 # Universal Excel/CSV Filter
 
-A **Python GUI tool** that lets you load Excel (`.xlsx`) and CSV (`.csv`) files, define custom filtering rules, and export the results to new Excel/CSV files.
-It automatically detects headers, handles multi-row headers, and supports both simple and advanced filtering operations.
+A **Python GUI tool** for loading Excel (`.xlsx`) and CSV (`.csv`) files, building advanced filtering rules, and exporting filtered data to new Excel/CSV files. This tool automatically detects headers (including multi-row and missing headers), supports a wide range of filtering operations, and provides a convenient export workflow.
 
 ---
 
 ## ✨ Features
 
-* **File Support**: Excel (`.xlsx`) and CSV (`.csv`)
-* **Automatic Header Detection**: Handles single-row, multi-row, or missing headers
-* **Filtering Options**:
-
-  * String operations: `is`, `is_not`, `contains_any`, `not_contains_any`, `regex_any`, `not_regex`
-  * Numeric operations: `gt`, `gte`, `lt`, `lte`, `between`
-  * External list file matching: `in_list_file`, `not_in_list_file`
-* **Combine Rules**: Use **AND** or **OR** logic
-* **Output Options**:
-
-  * Save results as Excel or CSV
-  * Separate sheets for multiple Excel tabs
-  * Append source sheet name to merged outputs
-* **Column Normalisation**: Automatically deduplicates/cleans column names
-* **GUI Powered by Tkinter** – simple, lightweight, and cross-platform
+* **Supported Files**: Excel (`.xlsx`) and CSV (`.csv`)
+* **Header Detection**: Handles single-row, multi-row, or missing headers automatically
+* **Flexible Filtering**:
+  * String: `is`, `is_not`, `contains_any`, `not_contains_any`, `regex_any`, `not_regex`, `in_list_file`, `not_in_list_file`, `is_empty`, `not_empty`
+  * Numeric: `gt`, `gte`, `lt`, `lte`, `between`
+* **Rule Logic**: Combine multiple rules using **AND** or **OR**
+* **Export Options**:
+  * Save filtered data as Excel or CSV
+  * Option to export each Excel sheet separately
+  * Optionally add source sheet names to merged outputs
+* **Column Normalisation**: Cleans and deduplicates column names automatically
+* **Intuitive Tkinter GUI**: Lightweight, fast, and cross-platform
 
 ---
 
 ## 🚀 Installation
 
-1. Install Python 3.8+
-2. Install dependencies:
+1. Install Python 3.8 or newer
+2. Install required packages:
 
    ```bash
    pip install pandas openpyxl
    ```
 
-   (Tkinter comes bundled with most Python installations.)
+   (Tkinter is included with most Python installations.)
 
 ---
 
 ## 🖥️ Usage
 
-Run the program:
+Start the GUI application:
 
 ```bash
 python ExcelFilter_Tool.py
 ```
 
-### GUI Steps:
+### Workflow:
 
 1. **Load File**
+   * Choose an Excel or CSV file to load
+   * Optionally process all sheets (for Excel files)
 
-   * Select your Excel/CSV file
-   * Optionally process all sheets (Excel only)
+2. **Configure Options**
+   * Decide whether to normalise column names
+   * Select rule logic (AND/OR)
+   * Choose to keep or exclude matching rows
+   * Select output format(s): Excel, CSV, or both
 
-2. **Set Options**
+3. **Build Filtering Rules**
+   * Pick a column
+   * Select a filtering operator (e.g., `contains_any`, `is_empty`, `gte`)
+   * Enter values, numeric thresholds, or attach a list file as needed
 
-   * Choose whether to normalise column names
-   * Select how to combine multiple rules (AND/OR)
-   * Decide if matching rows should be kept or excluded
-   * Pick output format (Excel, CSV, or both)
-
-3. **Define Rules**
-
-   * Select column
-   * Choose operator (`contains_any`, `is`, `gt`, etc.)
-   * Enter values or attach a list file if required
-
-4. **Apply Filters & Export**
-
-   * Results are saved with a timestamped filename in your chosen directory
+4. **Preview & Export**
+   * Preview the number of rows that will be kept or excluded
+   * Export filtered results with a timestamped filename
 
 ---
 
 ## 📂 Example
 
-Suppose you have an Excel file with customer records and you want to:
+Suppose you want to:
 
 * Keep rows where `Status` **contains "Active"**
-* Exclude rows where `Age < 18`
+* Exclude rows where `Age` is less than 18
 
 You would:
 
 * Add rule: `Status → contains_any → ["Active"]`
 * Add rule: `Age → gte → 18`
-* Combine rules with **AND**
-* Export results to Excel
+* Set rule combination to **AND**
+* Export the results to Excel or CSV
 
 ---
 
@@ -99,20 +92,22 @@ You would:
 |         | `not_regex`              | Does not match regex                   |
 |         | `in_list_file`           | Matches values from external list file |
 |         | `not_in_list_file`       | Excludes values in external list file  |
-| Numeric | `gt`, `gte`, `lt`, `lte` | Greater/less than (with float support) |
-|         | `between`                | Between min and max values             |
+|         | `is_empty`               | Cell is empty or blank                 |
+|         | `not_empty`              | Cell is not empty                      |
+| Numeric | `gt`, `gte`, `lt`, `lte` | Greater/less than (numeric)            |
+|         | `between`                | Within a specified numeric range       |
 
 ---
 
-## 🛠 Development Notes
+## 🛠 Notes
 
-* Header detection scans first 50 rows and scores them based on "header-likeness"
-* Multi-row headers may be merged (e.g., `Region | Sales` → `Region Sales`)
-* Deduplication ensures unique column names (`Name`, `Name__1`, `Name__2`)
+* Header detection scans the top 50 rows to determine the most likely header row(s)
+* Multi-row headers are merged automatically for clarity
+* Column names are deduplicated to avoid ambiguity (e.g., `Name`, `Name__1`)
+* Filtering supports both string and numeric logic, as well as matching from external lists
 
 ---
 
 ## 📜 License
 
 MIT License – free to use, modify, and distribute.
-
